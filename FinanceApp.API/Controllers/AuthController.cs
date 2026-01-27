@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var passwordHash = HashPassword(request.Password);
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         await _authService.RegisterAsync(request, passwordHash);
 
@@ -28,9 +28,19 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        return Ok(new { message = "Login endpoint funcionando" });
+        var token = await _authService.LoginAsync(request.Email, request.Password);
+
+        if (token == null)
+            return Unauthorized(new { message = "Email ou senha inválidos" });
+
+        var response = new AuthResponse
+        {
+            Token = token
+        };
+
+        return Ok(response);
     }
 
     private static string HashPassword(string password)
