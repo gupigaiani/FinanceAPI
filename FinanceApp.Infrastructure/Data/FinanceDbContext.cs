@@ -38,8 +38,9 @@ public class FinanceDbContext : DbContext
             entity.Property(t => t.Amount).HasPrecision(18, 2);
 
             entity.HasOne(t => t.User)
-                  .WithMany(u => u.Transactions)
-                  .HasForeignKey(t => t.UserId);
+                .WithMany(u => u.Transactions)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(t => t.Category)
                   .WithMany(c => c.Transactions)
